@@ -1,0 +1,7 @@
+planejar um sistema de tubulação para um sistema de agua 
+
+
+6 bairros
+    Não pode deixar ninguem sem agua
+    -POR OBVIO
+Deve ser possivel fazer manutenção em qual quer 1 dos tubos sem que nenhuma casa fique sem agua

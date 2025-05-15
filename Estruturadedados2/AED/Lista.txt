@@ -1,0 +1,8 @@
+pao,2.50,1
+queijo,9.90,11
+sorvete,15.50,101
+Presunto,10.10,12
+pao de queijo,3.00,2
+pao amantegado,1.50,3
+mortadela,11.50,13
+provolone,15,14

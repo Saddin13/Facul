@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1718898792 source:c:\users\vitus\onedrive\documentos\aeded\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+

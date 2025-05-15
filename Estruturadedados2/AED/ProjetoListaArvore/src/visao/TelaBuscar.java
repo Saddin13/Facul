@@ -1,0 +1,281 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
+ */
+package visao;
+
+import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.text.MaskFormatter;
+import modelo.Aluno;
+
+
+public class TelaBuscar extends javax.swing.JDialog {
+
+    public TelaBuscar(java.awt.Frame parent, boolean modal) {
+        super(parent, modal);
+        initComponents();
+        ComboBox_Busca.setModel(new javax.swing.DefaultComboBoxModel(BUSCA.values()));
+    }
+    private List<Aluno> resultadoBusca = new ArrayList();
+    private String nomeMatricula = "";
+    private String tipo_busca = "";
+    
+    public enum BUSCA {
+    NOME,
+    MATRICULA,
+    }
+    
+    public String[] exportarDadosBusca (String[] buscaAluno) throws Exception{
+        try {
+        if(nomeMatricula.compareTo("") != 0){
+        buscaAluno[0] = nomeMatricula;
+        buscaAluno[1] = tipo_busca;
+        return buscaAluno;
+        }
+        
+        else 
+            buscaAluno = null;
+        } catch (Exception erro) {
+        JOptionPane.showMessageDialog(this, erro.getMessage() + "BuscarTela exportar Dados\n");
+        }
+        
+        return buscaAluno;
+    }
+    
+    public void receberResultadoBusca (List<Aluno> resultado) throws Exception{
+        resultadoBusca = resultado;
+        exibir();
+    }
+    
+    private void exibir()throws Exception{
+        try {
+        this.dispose();
+        String saida = "";
+        JTextArea textArea = new JTextArea();
+        for(int i = 0; i < resultadoBusca.size();i++){
+            saida += resultadoBusca.get(i).toStringBusca();
+        }
+        textArea.setText(saida);
+        JScrollPane scroll = new JScrollPane(textArea);
+        scroll.setPreferredSize(new Dimension(400,300));
+        JOptionPane.showMessageDialog(null, scroll);
+        
+        } catch (Exception erro) {
+        JOptionPane.showMessageDialog(this, erro.getMessage() + "Tela buscar exibir Dados\n");
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        ComboBox_Busca = new javax.swing.JComboBox<>();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jButton_Buscar = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
+        FormattedTextFieldNomeMatricula = new javax.swing.JFormattedTextField();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("BUSCAR_ALUNO");
+        setPreferredSize(new java.awt.Dimension(400, 205));
+        setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
+
+        ComboBox_Busca.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        ComboBox_Busca.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "NOME", "MATRICULA" }));
+        ComboBox_Busca.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                ComboBox_BuscaItemStateChanged(evt);
+            }
+        });
+        ComboBox_Busca.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ComboBox_BuscaActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel1.setText("BUSCAR POR:");
+
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel2.setText("INFORME O NOME/MATRICULA:");
+
+        jButton_Buscar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jButton_Buscar.setText("BUSCAR");
+        jButton_Buscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton_BuscarActionPerformed(evt);
+            }
+        });
+
+        jLabel4.setFont(new java.awt.Font("Times New Roman", 1, 36)); // NOI18N
+        jLabel4.setText("Buscar");
+
+        FormattedTextFieldNomeMatricula.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                FormattedTextFieldNomeMatriculaActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addComponent(ComboBox_Busca, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2))
+                        .addGap(142, 215, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(FormattedTextFieldNomeMatricula, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButton_Buscar))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addContainerGap())))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1)
+                .addGap(5, 5, 5)
+                .addComponent(ComboBox_Busca, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton_Buscar)
+                    .addComponent(FormattedTextFieldNomeMatricula, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton_BuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_BuscarActionPerformed
+        // TODO add your handling code here:
+        try {
+        nomeMatricula = FormattedTextFieldNomeMatricula.getText().toUpperCase();
+        tipo_busca = ComboBox_Busca.getSelectedItem().toString();
+        this.dispose();
+        
+        } catch (Exception erro) {
+        JOptionPane.showMessageDialog(this, erro.getMessage() + "Tela_buscar botao Dados\n");
+        }
+
+    }//GEN-LAST:event_jButton_BuscarActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+    }//GEN-LAST:event_formWindowClosing
+
+    private void FormattedTextFieldNomeMatriculaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FormattedTextFieldNomeMatriculaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_FormattedTextFieldNomeMatriculaActionPerformed
+
+    private void ComboBox_BuscaItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_ComboBox_BuscaItemStateChanged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_ComboBox_BuscaItemStateChanged
+
+    private void ComboBox_BuscaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ComboBox_BuscaActionPerformed
+        // TODO add your handling code here:
+        String tipoBusca = ComboBox_Busca.getSelectedItem().toString();
+        if(tipoBusca == "MATRICULA")
+            try {
+                MaskFormatter formatter = new MaskFormatter("####.#.###.####");
+                        formatter.setPlaceholderCharacter('_');
+                        formatter.install(FormattedTextFieldNomeMatricula);
+                        FormattedTextFieldNomeMatricula.addFocusListener(new java.awt.event.FocusAdapter() {
+                        @Override
+                        public void focusGained(java.awt.event.FocusEvent evt) {
+                        FormattedTextFieldNomeMatricula.setCaretPosition(0); 
+                    }
+            });
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Erro ao aplicar a máscara na matrícula: " + e.getMessage());
+            }
+            else {
+            FormattedTextFieldNomeMatricula.setFormatterFactory(null);
+            String texto = FormattedTextFieldNomeMatricula.getText();
+            FormattedTextFieldNomeMatricula.setText(texto.replaceAll("[^a-zA-Z0-9]", ""));
+            FormattedTextFieldNomeMatricula.setEditable(true);
+            FormattedTextFieldNomeMatricula.setCaretPosition(0);
+        }
+       
+    }//GEN-LAST:event_ComboBox_BuscaActionPerformed
+
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(TelaBuscar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(TelaBuscar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(TelaBuscar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(TelaBuscar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+
+        /* Create and display the dialog */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                TelaBuscar dialog = new TelaBuscar(new javax.swing.JFrame(), true);
+                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        System.exit(0);
+                    }
+                });
+                dialog.setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> ComboBox_Busca;
+    private javax.swing.JFormattedTextField FormattedTextFieldNomeMatricula;
+    private javax.swing.JButton jButton_Buscar;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel4;
+    // End of variables declaration//GEN-END:variables
+}

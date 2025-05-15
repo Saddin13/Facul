@@ -1,0 +1,24 @@
+Grafo Bipartido
+    entre disciplinas nessesarias e lab disponiveis
+    arestas entre os 2 grafos valem para setar o uso daquele 
+    -laboratorio para a disciplina
+numero de professor totais
+max 3 aulas por dia
+    em cada laboratorio
+cada turma deve ter 2 aulas por semana
+entrada com o numero de disciplinas
+    entrada com o numero de turmas por disciplina
+        depois calculamos o numero de turmas com base na quantidade 
+        - de alunos nessesitados
+        - #nao vo faze FODASE NAO LIGO
+tem q ter a saida do numero minimo de labs e professores
+professores nao podem ter aulas em horarios iguais em disciplinas diferentes
+
+
+
+Particao 1 - disciplinas + Turmas 
+Particao 2 - Professores 
+Particao 3 - Labs 
+Particao 4 - Horarios discpoiniveis
+
+
