@@ -15,6 +15,7 @@ using namespace std;
 
 void PrintSudoku(char m[9][9])
 {
+    printf("\t0 1 2 3 4 5 6 7 8  | \n\t------------------ |\n\t");
     for (int i = 0; i < 9; i++)
     {
         for (int j = 0; j < 9; j++)
@@ -24,7 +25,7 @@ void PrintSudoku(char m[9][9])
             else
             printf("%d ", m[i][j]);
         }
-        printf("\n");
+        printf(" | %d\n\t", i);
     }
 }
 
