@@ -1,17 +1,10 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
-#include <windows.h>
 #include <time.h>
-#include <conio.h>
-#include <stdbool.h>
-#include <string.h>
-#include <string>
-#include <math.h>
-#include <ctype.h>
-
+#include <omp.h>
+#include "Paralelism.h"
 using namespace std;
-
 
 void PrintSudoku(char m[9][9])
 {
@@ -70,6 +63,13 @@ void GerarValoresAleatorios(char m[9][9], int quantidade) {
 }
 
 int main() {
+    cout << "Voce quer Resolver o Sudoku ou Ver a Resposta Usando Paralelismo?\n";
+    cout << "1 - Resolver\n";
+    cout << "2 - Ultilizar Paralelismo\n";
+    int opcao;
+    cin >> opcao;
+
+
     char m[9][9] = {
         {0,0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0,0},
@@ -82,33 +82,47 @@ int main() {
         {0,0,0,0,0,0,0,0,0},
     };
     cout << "\nGerando Sudoku...\n";
-    Sleep(1000);
     system("cls");
 
     GerarValoresAleatorios(m, 20); // Gera 20 números aleatórios
     PrintSudoku(m);
-    Sleep(3000);
     system("cls");
 
-    cout << "\n\n\n";
 
-    while (true) {
-        int linha, coluna, valor;
-        cout << "Digite a linha (0-8), coluna (0-8) e valor (1-9) para inserir (separados por espaco)\n";
-        cin >> linha >> coluna >> valor;
+    if (opcao == 1) {
+        while (true) {
+            int linha, coluna, valor;
+            cout << "Digite a linha (0-8), coluna (0-8) e valor (1-9) para inserir (separados por espaco)\n";
+            cin >> linha >> coluna >> valor;
 
-        if (linha < 0 || linha > 8 || coluna < 0 || coluna > 8 || valor < 1 || valor > 9) {
-            cout << "Entrada invalida. Tente novamente.\n";
-            continue;
+            if (linha < 0 || linha > 8 || coluna < 0 || coluna > 8 || valor < 1 || valor > 9) {
+                cout << "Entrada invalida. Tente novamente.\n";
+                continue;
+            }
+
+            if (ValidadorDeSudoku(m, linha, coluna, valor)) {
+                m[linha][coluna] = valor;
+                system("cls");
+                PrintSudoku(m);
+            } else {
+                cout << "Valor invalido para a posiçao. Tente novamente.\n";
+            }
         }
-
-        if (ValidadorDeSudoku(m, linha, coluna, valor)) {
-            m[linha][coluna] = valor;
-            system("cls");
+        return 0;
+    } else if (opcao == 2) {
+            cout << "\nResolvendo...\n";
+        double inicio = omp_get_wtime();
+        if (resolverSudokuParalelo(m)) {
+            double fim = omp_get_wtime();
+            cout << "\nSudoku resolvido:\n";
             PrintSudoku(m);
+            cout << "\nTempo de execucao: " << fim - inicio << " segundos\n";
         } else {
-            cout << "Valor invalido para a posiçao. Tente novamente.\n";
+            cout << "\nNao foi possivel resolver o Sudoku\n";
         }
+         return 0;
+    } else {
+        cout << "Opcao invalida. Por favor, escolha 1 ou 2.\n";
+        return 1;
     }
-    return 0;
 }
