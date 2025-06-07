@@ -165,10 +165,11 @@ def main():
             # Verifica se o nó 14 ainda existe no grafo
             if 14 not in grafo.nodes:
                 print("O nó 14 foi removido. Fim de jogo!")
+                print("Você chegou ao fim do jogo! Parabéns!")
+                print(f"Valor da casa atual antes de remover o nó 14: {grafo.nodes[0]['valor']}")
+                print(f"Parabens Voce matou o BOSS com: {grafo.nodes[0]['valor'] - 100}")
                 break
     plt.close('all') 
-    print("Você chegou ao fim do jogo! Parabéns!")
-    print(f"Valor da casa atual antes de remover o nó 14: {grafo.nodes[0]['valor']}")
-    print(f"Parabens Voce matou o BOSS com: {grafo.nodes[0]['valor'] - 100}")
+    print("Jogo encerrado. Obrigado por jogar!")
 if __name__ == "__main__":
     main()
