@@ -141,6 +141,12 @@ def main():
             print("Selecione um vizinho para continuar.")
             continue
         valor_atual = grafo.nodes[CasaAtual]['valor']
+        # Verifica se todos os vizinhos têm valor maior ou igual ao valor atual
+        vizinhos = list(grafo.neighbors(CasaAtual))
+        valores_vizinhos = [grafo.nodes[v]['valor'] for v in vizinhos]
+        if all(valor_atual >= v for v in valores_vizinhos):
+            print("Você perdeu! Todos os vizinhos têm valor maior ou igual ao da casa atual.")
+            break
         if volta > valor_atual:
             print("Interação inválida! O valor do vizinho é maior que o valor da casa atual. Tente novamente.")
             continue
