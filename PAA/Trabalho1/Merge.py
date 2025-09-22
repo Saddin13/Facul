@@ -51,6 +51,7 @@ def MergeShortINT(coluna, file_path):
 def MergeShortChr(coluna, file_path):
     print("Organizando arquivo por valor string...")
     df = pd.read_excel(file_path)
+    df.iloc[:, coluna] = df.iloc[:, coluna].astype(str)
     valores = list(df.iloc[:, coluna])
     indices = list(range(len(valores)))
 
