@@ -7,7 +7,7 @@ def MergeShortINT(coluna, file_path):
     print("Organizando arquivo por valor numerico...")
     df = pd.read_excel(file_path)
     df.iloc[:, coluna] = df.iloc[:, coluna].astype(str).str.replace(r'\D', '', regex=True)
-    valores = list(df.iloc[:, coluna])
+    valores = list(df.iloc[:, coluna].astype(int))
     indices = list(range(len(valores)))
 
     def merge_sort(arr, idx):
