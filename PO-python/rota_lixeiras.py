@@ -1,9 +1,8 @@
 """
 Otimização de Rota de Coleta de Lixeiras Hospitalares
-======================================================
-Grafo e Programação (VRP/TSP) com NetworkX
-Autor: Vitor Saddi Ribeiro — IC PUC Goiás
+Autor: Caio Leal, Raphael Avila, João Marcelo Angeli, Vitor Saddi Ribeiro
 """
+
 import os
 import math
 import random
@@ -50,6 +49,7 @@ NODES = {
 # ══════════════════════════════════════════════════════════════════
 # 2. ENTRADA DE DADOS
 # ══════════════════════════════════════════════════════════════════
+
 print("=" * 60)
 print("  SISTEMA DE OTIMIZAÇÃO DE ROTA — LIXEIRAS HOSPITALARES IoT")
 print("=" * 60)
@@ -99,12 +99,11 @@ else:
     print("\nOpção inválida! Encerrando o programa.")
     exit()
 
-# ── Configurações do Solver ──────────────────────────────────────
+#Restriçoes fixas para o modelo final
 
 THRESHOLD = 60
 print(f"  -> Limiar de coleta fixado em: {THRESHOLD/100:g}L")
 
-# Mantemos a lógica interna em 400 (400%), mas exibimos como 4L
 CAPACITY = 400
 print(f"  -> Capacidade fixada em: {CAPACITY/100:g}L")
 
@@ -124,7 +123,7 @@ for i in G.nodes:
             G.add_edge(i, j, weight=dist)
 
 # ══════════════════════════════════════════════════════════════
-# 4. RESOLUÇÃO (C&W + ROUBO + TROCA + FORÇA BRUTA)
+# 4. RESOLUÇÃO
 # ══════════════════════════════════════════════════════════════
 
 must_visit = [n for n in G.nodes if not G.nodes[n]["depot"] and fill_levels.get(n, 0) >= THRESHOLD]
