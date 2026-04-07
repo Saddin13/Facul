@@ -14,50 +14,36 @@ import matplotlib.patches as mpatches
 from matplotlib.gridspec import GridSpec
 
 # ══════════════════════════════════════════════════════════════
-# 1. CONFIGURAÇÃO DOS NÓS (Layout Lógico e Balanceado)
+# 1. CONFIGURAÇÃO DOS NÓS (posições em metros dentro do hospital)
 # ══════════════════════════════════════════════════════════════
 
-os.system("cls" if os.name == "nt" else "clear") # Limpa o terminal para melhor visualização
+os.system("cls" if os.name == "nt" else "clear")
 
 START_NODE = 0
 END_NODE = 21
 
 NODES = {
     0: {"name": "Início (Carrinhos)",   "x": 0,     "y": 0,     "depot": True},
-    
-    # Ala de Urgência (Perto da Entrada)
-    7: {"name": "Triagem",              "x": 20,    "y": 30,    "depot": False},
+    1: {"name": "UTI",                  "x": 10,    "y": 90,    "depot": False},
+    2: {"name": "Centro Cirúrgico",     "x": 30,    "y": 130,   "depot": False},
     3: {"name": "Emergência",           "x": 40,    "y": 20,    "depot": False},
-    1: {"name": "UTI",                  "x": 20,    "y": 70,    "depot": False},
-    
-    # Ala de Imagens e Diagnósticos
-    8: {"name": "Radiologia",           "x": 50,    "y": 50,    "depot": False},
-    11:{"name": "Laboratório",          "x": 30,    "y": 100,   "depot": False},
-    
-    # Ala Cirúrgica e Especialidades (Restrito)
-    2: {"name": "Centro Cirúrgico",     "x": 40,    "y": 130,   "depot": False},
-    12:{"name": "Hematologia",          "x": 70,    "y": 140,   "depot": False},
-    16:{"name": "Obstetrícia",          "x": 70,    "y": 110,   "depot": False},
-    18:{"name": "Quimioterapia",        "x": 60,    "y": 80,    "depot": False},
-    
-    # Ala Ambulatorial e Reabilitação
-    15:{"name": "Fisioterapia",         "x": 80,    "y": 20,    "depot": False},
-    17:{"name": "Ortopedia",            "x": 110,   "y": 40,    "depot": False},
-    10:{"name": "Ambulatório",           "x": 130,   "y": 30,   "depot": False},
-    
-    # Ala de Internação (Coração do Hospital)
-    20:{"name": "Internação",           "x": 90,    "y": 90,    "depot": False},
+    4: {"name": "Farmácia",             "x": 110,   "y": 80,    "depot": False},
     5: {"name": "Enfermaria A",         "x": 90,    "y": 130,   "depot": False},
     6: {"name": "Enfermaria B",         "x": 140,   "y": 120,   "depot": False},
+    7: {"name": "Triagem",              "x": 20,    "y": 30,    "depot": False},
+    8: {"name": "Radiologia",           "x": 50,    "y": 50,    "depot": False},
     9: {"name": "Pediatria",            "x": 140,   "y": 100,   "depot": False},
-    
-    # Apoio e Logística Distribuída
-    4: {"name": "Farmácia",             "x": 110,   "y": 80,    "depot": False},
-    14:{"name": "Nutrição",             "x": 110,   "y": 110,   "depot": False},
+    10:{"name": "Ambulatório",           "x": 130,   "y": 30,   "depot": False},
+    11:{"name": "Laboratório",          "x": 30,    "y": 100,   "depot": False},
+    12:{"name": "Hematologia",          "x": 70,    "y": 140,   "depot": False},
     13:{"name": "Administração",        "x": 130,   "y": 70,    "depot": False},
+    14:{"name": "Nutrição",             "x": 110,   "y": 110,   "depot": False},
+    15:{"name": "Fisioterapia",         "x": 80,    "y": 20,    "depot": False},
+    16:{"name": "Obstetrícia",          "x": 70,    "y": 110,   "depot": False},
+    17:{"name": "Ortopedia",            "x": 110,   "y": 40,    "depot": False},
+    18:{"name": "Quimioterapia",        "x": 60,    "y": 80,    "depot": False},
     19:{"name": "Higienização",         "x": 120,   "y": 140,   "depot": False},
-    
-    # Saída
+    20:{"name": "Internação",           "x": 90,    "y": 90,    "depot": False},
     21:{"name": "Fim (Descarte)",       "x": 150,   "y": 150,   "depot": True},
 }
 
@@ -117,9 +103,9 @@ else:
 
 THRESHOLD = 60
 print(f"  -> Limiar de coleta fixado em: {THRESHOLD}%")
-CAPACITY = 5
-print(f"  -> Capacidade máxima por carrinho: {CAPACITY}")
-print("\nProcessando rotas (C&W + Relocate + Swap + TSP Exato)...\n")
+
+CAPACITY = 400
+print(f"  -> Capacidade fixada em: {CAPACITY}%")
 
 # ══════════════════════════════════════════════════════════════
 # 3. CRIAÇÃO DO GRAFO COM NETWORKX
@@ -146,7 +132,6 @@ if not must_visit:
     print("Nenhuma lixeira precisa ser coletada!")
     exit()
 
-# Função auxiliar: Acha a melhor rota e distância para um grupo de nós
 def get_optimal_route_dist(cluster):
     if not cluster:
         return 0, []
@@ -176,7 +161,9 @@ for s, i, j in savings:
     idx_j = next((idx for idx, c in enumerate(clusters) if j in c), -1)
     
     if idx_i != -1 and idx_j != -1 and idx_i != idx_j:
-        if len(clusters[idx_i]) + len(clusters[idx_j]) <= CAPACITY:
+        vol_i = sum(fill_levels[n] for n in clusters[idx_i])
+        vol_j = sum(fill_levels[n] for n in clusters[idx_j])
+        if vol_i + vol_j <= CAPACITY:
             clusters[idx_i].extend(clusters[idx_j])
             del clusters[idx_j]
 
@@ -185,12 +172,15 @@ searching = True
 while searching:
     searching = False
     
-    # 2.1 ROUBO (Relocate)
     for i in range(len(clusters)):
         for j in range(len(clusters)):
-            if i == j or len(clusters[j]) >= CAPACITY: continue 
+            if i == j: continue 
 
             for node in clusters[i]:
+                vol_j = sum(fill_levels[n] for n in clusters[j])
+                if vol_j + fill_levels[node] > CAPACITY: 
+                    continue
+
                 cost_i, _ = get_optimal_route_dist(clusters[i])
                 cost_j, _ = get_optimal_route_dist(clusters[j])
                 current_cost = cost_i + cost_j
@@ -211,11 +201,19 @@ while searching:
         
     if searching: continue 
 
-    # 2.2 ESCAMBO (Swap)
     for i in range(len(clusters)):
         for j in range(i + 1, len(clusters)):
             for node_i in clusters[i]:
                 for node_j in clusters[j]:
+                    
+                    vol_i = sum(fill_levels[n] for n in clusters[i])
+                    vol_j = sum(fill_levels[n] for n in clusters[j])
+                    new_vol_i = vol_i - fill_levels[node_i] + fill_levels[node_j]
+                    new_vol_j = vol_j - fill_levels[node_j] + fill_levels[node_i]
+                    
+                    if new_vol_i > CAPACITY or new_vol_j > CAPACITY:
+                        continue
+
                     cost_i, _ = get_optimal_route_dist(clusters[i])
                     cost_j, _ = get_optimal_route_dist(clusters[j])
                     current_cost = cost_i + cost_j
@@ -236,24 +234,26 @@ while searching:
         if searching: break
 
 clusters = [c for c in clusters if c]
-# -----------------------------------------------------------------
 
 trips = []
+trip_vols = []
 total_dist = 0
 trip_lengths = []
 
 for chunk in clusters:
     dist, route = get_optimal_route_dist(chunk)
+    vol = sum(fill_levels[n] for n in chunk)
     trips.append(route)
+    trip_vols.append(vol)
     trip_lengths.append(dist)
     total_dist += dist
 
 ignored = [n for n in G.nodes if not G.nodes[n]["depot"] and n not in must_visit]
 
 print("─" * 50)
-for t, (trip, length) in enumerate(zip(trips, trip_lengths)):
+for t, (trip, length, vol) in enumerate(zip(trips, trip_lengths, trip_vols)):
     names = " → ".join("Início" if n == START_NODE else "Descarte" if n == END_NODE else G.nodes[n]["name"].split()[0] for n in trip)
-    print(f"  Viagem {t+1} (Carga: {len(trip)-2}): {names}")
+    print(f"  Viagem {t+1} (Carga: {vol}% / {CAPACITY}%): {names}")
     print(f"           Distância: {length:.1f} m")
 print("─" * 50)
 print(f"  DISTÂNCIA TOTAL ÓTIMA: {total_dist:.1f} m")
@@ -274,11 +274,11 @@ TRIP_COLORS = [base_colors[i % len(base_colors)] for i in range(max(10, len(trip
 
 fig = plt.figure(figsize=(16, 11), facecolor=PALETTE["bg"])
 fig.suptitle("Otimização de Rota — Coleta de Lixeiras Hospitalares IoT\n"
-             f"Threshold: {THRESHOLD}%  |  Capacidade: {CAPACITY} coletas/viagem  |  "
+             f"Threshold: {THRESHOLD}%  |  Capacidade Max: {CAPACITY}% de Volume  |  "
              f"Distância total ótima: {total_dist:.1f} m",
              fontsize=13, fontweight='bold', color=PALETTE["text"], y=0.98)
 
-gs = GridSpec(2, 3, figure=fig, left=0.05, right=0.97, top=0.93, bottom=0.06, hspace=0.38, wspace=0.32)
+gs = GridSpec(3, 3, figure=fig, left=0.05, right=0.97, top=0.93, bottom=0.06, hspace=0.45, wspace=0.32)
 
 # ── GRÁFICO 1: Mapa do hospital ──────────────────────────────
 ax_map = fig.add_subplot(gs[:, :2])
@@ -286,10 +286,8 @@ ax_map.set_facecolor(PALETTE["bg"])
 
 pos = nx.get_node_attributes(G, 'pos')
 
-# Desenha as arestas de fundo
 nx.draw_networkx_edges(G, pos, ax=ax_map, edge_color=PALETTE["edge_bg"], width=0.6)
 
-# Desenha as arestas da rota
 for t, trip in enumerate(trips):
     col = TRIP_COLORS[t]
     route_edges = [(trip[k], trip[k+1]) for k in range(len(trip)-1)]
@@ -300,14 +298,12 @@ for t, trip in enumerate(trips):
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, ax=ax_map, 
                                  font_color=col, font_size=8, font_weight='bold')
 
-# Desenha os nós
 node_colors = [PALETTE["depot"] if G.nodes[n]["depot"] else (PALETTE["route"] if n in must_visit else PALETTE["ignored"]) for n in G.nodes]
 nx.draw_networkx_nodes(G, pos, ax=ax_map, node_color=node_colors, node_size=600, edgecolors="white", linewidths=1.5)
 
 labels = {n: "I" if n == START_NODE else "F" if n == END_NODE else str(n) for n in G.nodes}
 nx.draw_networkx_labels(G, pos, labels, ax=ax_map, font_color="white", font_size=10, font_weight="bold")
 
-# Rótulos e Preenchimentos
 for n in G.nodes:
     x, y = pos[n]
     nome = G.nodes[n]["name"].replace("Enfermaria", "Enf.").replace(" (Carrinhos)", "").replace(" (Descarte)", "")
@@ -323,14 +319,13 @@ ax_map.set_xlim(-10, 160)
 ax_map.set_ylim(-10, 160)
 ax_map.axis('off')
 
-# Legenda do Mapa
 legend_handles = [
     mpatches.Patch(color=PALETTE["depot"],   label="Depósitos (I = Início, F = Fim)"),
     mpatches.Patch(color=PALETTE["route"],   label=f"Lixeira na rota (≥{THRESHOLD}%)"),
     mpatches.Patch(color=PALETTE["ignored"], label=f"Ignorada (<{THRESHOLD}%)"),
 ]
 for t in range(len(trips)):
-    legend_handles.append(mpatches.Patch(color=TRIP_COLORS[t], label=f"Viagem {t+1} (Carga: {len(trips[t])-2})"))
+    legend_handles.append(mpatches.Patch(color=TRIP_COLORS[t], label=f"Viagem {t+1} (Vol: {trip_vols[t]}%)"))
 ax_map.legend(handles=legend_handles, loc='lower right', fontsize=8, framealpha=0.9)
 
 # ── GRÁFICO 2: Nível de preenchimento ────────
@@ -355,8 +350,47 @@ ax_bar.set_xlabel("Preenchimento (%)", fontsize=8, color=PALETTE["text"])
 ax_bar.legend(fontsize=7.5, framealpha=0.9)
 ax_bar.grid(axis='x', color=PALETTE["grid"], lw=0.5)
 
-# ── GRÁFICO 3: Distância por viagem ──────────
-ax_trip = fig.add_subplot(gs[1, 2])
+# ── GRÁFICO 3: Lixo Acumulado por Viagem (Barras Empilhadas) ───
+ax_trash = fig.add_subplot(gs[1, 2])
+ax_trash.set_facecolor(PALETTE["bg"])
+ax_trash.set_title("Volume de Lixo por Viagem", fontsize=10, fontweight='bold', color=PALETTE["text"])
+
+# Paleta de cores distintas para os bloquinhos (nós) dentro da barra empilhada
+STACK_COLORS = ["#4A8F79", "#F07C41", "#533AB7", "#E24B4A", "#F4C244", "#2B6888", "#8D4D85", "#B85B67", "#39719E"]
+
+if trips:
+    trip_labels = [f"V {i+1}" for i in range(len(trips))]
+    
+    for t, trip in enumerate(trips):
+        trip_label = trip_labels[t]
+        bottom = 0
+        nodes_in_trip = [n for n in trip if not G.nodes[n]["depot"]]
+        
+        for i, n in enumerate(nodes_in_trip):
+            val = fill_levels[n]
+            c = STACK_COLORS[i % len(STACK_COLORS)]
+            ax_trash.bar(trip_label, val, bottom=bottom, color=c, edgecolor='white', width=0.55)
+            
+            # Escreve o "Nó X" e a "Porcentagem" no meio do bloco se houver espaço
+            if val >= 25:
+                ax_trash.text(trip_label, bottom + val/2, f"Nó {n}\n{val}%", ha='center', va='center', 
+                              fontsize=7, color='white', fontweight='bold')
+            bottom += val
+            
+        # Imprime o total acumulado no topo da barra empilhada
+        ax_trash.text(trip_label, bottom + 5, f"{bottom}%", ha='center', va='bottom', 
+                      fontsize=8.5, fontweight='bold', color=PALETTE["text"])
+
+    # Linha tracejada indicando o Limite de Capacidade do Carrinho
+    ax_trash.axhline(y=CAPACITY, color="#E24B4A", lw=1.5, linestyle='--', label=f"Capacidade Máx ({CAPACITY}%)")
+    
+    ax_trash.set_ylim(0, CAPACITY * 1.15)
+    ax_trash.set_ylabel("Volume Acumulado (%)", fontsize=8, color=PALETTE["text"])
+    ax_trash.legend(fontsize=7.5, framealpha=0.9, loc='upper right')
+    ax_trash.grid(axis='y', color=PALETTE["grid"], lw=0.5)
+
+# ── GRÁFICO 4: Distância por viagem ──────────
+ax_trip = fig.add_subplot(gs[2, 2])
 ax_trip.set_facecolor(PALETTE["bg"])
 ax_trip.set_title("Distância por Viagem", fontsize=10, fontweight='bold', color=PALETTE["text"])
 
@@ -377,7 +411,7 @@ ax_trip.grid(axis='y', color=PALETTE["grid"], lw=0.5)
 
 # ── Rodapé atualizado ────────────────────────────────────────
 fig.text(0.05, 0.01,
-         "Modelo Final: Mapa Balanceado + Clarke & Wright + Busca Local + TSP Exato",
+         "Modelo Final: Dashboard Completo com Análise de Capacidade Empilhada",
          fontsize=8, color="#888780", ha='left', va='bottom')
 
 # Exibe o gráfico diretamente na tela
