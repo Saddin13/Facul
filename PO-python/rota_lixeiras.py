@@ -22,7 +22,7 @@ START_NODE = 0
 END_NODE = 21
 
 NODES = {
-    0: {"name": "Início (Carrinhos)",   "x": 0,     "y": 0,     "depot": True},
+    0: {"name": "Depósito (Carrinhos)", "x": 0,     "y": 0,     "depot": True },
     1: {"name": "UTI",                  "x": 10,    "y": 90,    "depot": False},
     2: {"name": "Centro Cirúrgico",     "x": 30,    "y": 130,   "depot": False},
     3: {"name": "Emergência",           "x": 40,    "y": 20,    "depot": False},
@@ -32,7 +32,7 @@ NODES = {
     7: {"name": "Triagem",              "x": 20,    "y": 30,    "depot": False},
     8: {"name": "Radiologia",           "x": 50,    "y": 50,    "depot": False},
     9: {"name": "Pediatria",            "x": 140,   "y": 100,   "depot": False},
-    10:{"name": "Ambulatório",           "x": 130,   "y": 30,   "depot": False},
+    10:{"name": "Ambulatório",          "x": 130,   "y": 30,   "depot": False},
     11:{"name": "Laboratório",          "x": 30,    "y": 100,   "depot": False},
     12:{"name": "Hematologia",          "x": 70,    "y": 140,   "depot": False},
     13:{"name": "Administração",        "x": 130,   "y": 70,    "depot": False},
@@ -43,7 +43,7 @@ NODES = {
     18:{"name": "Quimioterapia",        "x": 60,    "y": 80,    "depot": False},
     19:{"name": "Higienização",         "x": 120,   "y": 140,   "depot": False},
     20:{"name": "Internação",           "x": 90,    "y": 90,    "depot": False},
-    21:{"name": "Fim (Descarte)",       "x": 150,   "y": 150,   "depot": True},
+    21:{"name": "Lixo (Descarte)",      "x": 150,   "y": 150,   "depot": True },
 }
 
 # ══════════════════════════════════════════════════════════════════
@@ -63,7 +63,7 @@ if escolha == "1":
     print("\n[!] Gerando níveis randômicos para as lixeiras...\n")
     for nid, node in NODES.items():
         if not node["depot"]:
-            fill_levels[nid] = random.randint(20, 99)
+            fill_levels[nid] = random.randint(40, 99)
             print(f"  [{node['name']:20s}] nível gerado: {fill_levels[nid]/100:g}L")
     print()
 
@@ -249,7 +249,7 @@ ignored = [n for n in G.nodes if not G.nodes[n]["depot"] and n not in must_visit
 
 print("─" * 50)
 for t, (trip, length, vol) in enumerate(zip(trips, trip_lengths, trip_vols)):
-    names = " → ".join("Início" if n == START_NODE else "Descarte" if n == END_NODE else G.nodes[n]["name"].split()[0] for n in trip)
+    names = " → ".join("Depósito" if n == START_NODE else "Lixo" if n == END_NODE else G.nodes[n]["name"].split()[0] for n in trip)
     # Impressão convertida para Litros
     print(f"  Viagem {t+1} (Carga: {vol/100:g}L / {CAPACITY/100:g}L): {names}")
     print(f"           Distância: {length:.1f} m")
@@ -300,7 +300,7 @@ for t, trip in enumerate(trips):
 node_colors = [PALETTE["depot"] if G.nodes[n]["depot"] else (PALETTE["route"] if n in must_visit else PALETTE["ignored"]) for n in G.nodes]
 nx.draw_networkx_nodes(G, pos, ax=ax_map, node_color=node_colors, node_size=600, edgecolors="white", linewidths=1.5)
 
-labels = {n: "I" if n == START_NODE else "F" if n == END_NODE else str(n) for n in G.nodes}
+labels = {n: "D" if n == START_NODE else "L" if n == END_NODE else str(n) for n in G.nodes}
 nx.draw_networkx_labels(G, pos, labels, ax=ax_map, font_color="white", font_size=10, font_weight="bold")
 
 for n in G.nodes:
@@ -320,7 +320,7 @@ ax_map.set_ylim(-10, 160)
 ax_map.axis('off')
 
 legend_handles = [
-    mpatches.Patch(color=PALETTE["depot"],   label="Depósitos (I = Início, F = Fim)"),
+    mpatches.Patch(color=PALETTE["depot"],   label="Depósitos (D = Depósito, L = Lixo)"),
     mpatches.Patch(color=PALETTE["route"],   label=f"Lixeira na rota (≥{THRESHOLD/100:g}L)"),
     mpatches.Patch(color=PALETTE["ignored"], label=f"Ignorada (<{THRESHOLD/100:g}L)"),
 ]
