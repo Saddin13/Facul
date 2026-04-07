@@ -64,7 +64,7 @@ if escolha == "1":
     for nid, node in NODES.items():
         if not node["depot"]:
             fill_levels[nid] = random.randint(20, 99)
-            print(f"  [{node['name']:20s}] nível gerado: {fill_levels[nid]}%")
+            print(f"  [{node['name']:20s}] nível gerado: {fill_levels[nid]/100:g}L")
     print()
 
 elif escolha == "2":
@@ -102,10 +102,11 @@ else:
 # ── Configurações do Solver ──────────────────────────────────────
 
 THRESHOLD = 60
-print(f"  -> Limiar de coleta fixado em: {THRESHOLD}%")
+print(f"  -> Limiar de coleta fixado em: {THRESHOLD/100:g}L")
 
+# Mantemos a lógica interna em 400 (400%), mas exibimos como 4L
 CAPACITY = 400
-print(f"  -> Capacidade fixada em: {CAPACITY}%")
+print(f"  -> Capacidade fixada em: {CAPACITY/100:g}L")
 
 # ══════════════════════════════════════════════════════════════
 # 3. CRIAÇÃO DO GRAFO COM NETWORKX
@@ -145,7 +146,6 @@ def get_optimal_route_dist(cluster):
             best_r = r
     return min_dist, best_r
 
-# --- FASE 1: Agrupamento Inicial por Economias (Clarke & Wright) ---
 clusters = [[n] for n in must_visit]
 savings = []
 for i in must_visit:
@@ -167,7 +167,6 @@ for s, i, j in savings:
             clusters[idx_i].extend(clusters[idx_j])
             del clusters[idx_j]
 
-# --- FASE 2: BUSCA LOCAL (ROUBO & TROCA) ---
 searching = True
 while searching:
     searching = False
@@ -205,7 +204,6 @@ while searching:
         for j in range(i + 1, len(clusters)):
             for node_i in clusters[i]:
                 for node_j in clusters[j]:
-                    
                     vol_i = sum(fill_levels[n] for n in clusters[i])
                     vol_j = sum(fill_levels[n] for n in clusters[j])
                     new_vol_i = vol_i - fill_levels[node_i] + fill_levels[node_j]
@@ -253,7 +251,8 @@ ignored = [n for n in G.nodes if not G.nodes[n]["depot"] and n not in must_visit
 print("─" * 50)
 for t, (trip, length, vol) in enumerate(zip(trips, trip_lengths, trip_vols)):
     names = " → ".join("Início" if n == START_NODE else "Descarte" if n == END_NODE else G.nodes[n]["name"].split()[0] for n in trip)
-    print(f"  Viagem {t+1} (Carga: {vol}% / {CAPACITY}%): {names}")
+    # Impressão convertida para Litros
+    print(f"  Viagem {t+1} (Carga: {vol/100:g}L / {CAPACITY/100:g}L): {names}")
     print(f"           Distância: {length:.1f} m")
 print("─" * 50)
 print(f"  DISTÂNCIA TOTAL ÓTIMA: {total_dist:.1f} m")
@@ -274,7 +273,7 @@ TRIP_COLORS = [base_colors[i % len(base_colors)] for i in range(max(10, len(trip
 
 fig = plt.figure(figsize=(16, 11), facecolor=PALETTE["bg"])
 fig.suptitle("Otimização de Rota — Coleta de Lixeiras Hospitalares IoT\n"
-             f"Threshold: {THRESHOLD}%  |  Capacidade Max: {CAPACITY}% de Volume  |  "
+             f"Threshold: {THRESHOLD/100:g}L  |  Capacidade Max: {CAPACITY/100:g}L de Volume  |  "
              f"Distância total ótima: {total_dist:.1f} m",
              fontsize=13, fontweight='bold', color=PALETTE["text"], y=0.98)
 
@@ -291,8 +290,9 @@ nx.draw_networkx_edges(G, pos, ax=ax_map, edge_color=PALETTE["edge_bg"], width=0
 for t, trip in enumerate(trips):
     col = TRIP_COLORS[t]
     route_edges = [(trip[k], trip[k+1]) for k in range(len(trip)-1)]
+    # Curvatura reduzida de 0.15 para 0.08 para ficar mais limpo
     nx.draw_networkx_edges(G, pos, edgelist=route_edges, ax=ax_map, edge_color=col, 
-                           width=2.5, arrows=True, arrowsize=15, connectionstyle='arc3,rad=0.15')
+                           width=2.5, arrows=True, arrowsize=15, connectionstyle='arc3,rad=0.08')
     
     edge_labels = { (u, v): f"{G[u][v]['weight']:.0f}m" for u, v in route_edges }
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, ax=ax_map, 
@@ -313,7 +313,8 @@ for n in G.nodes:
     if not G.nodes[n]["depot"]:
         pct = fill_levels[n]
         badge_col = PALETTE["route"] if pct >= THRESHOLD else PALETTE["ignored"]
-        ax_map.text(x, y - 5, f"{pct}%", ha='center', va='top', fontsize=8, color=badge_col, fontweight='bold')
+        # Convertido para Litros no mapa
+        ax_map.text(x, y - 5, f"{pct/100:g}L", ha='center', va='top', fontsize=8, color=badge_col, fontweight='bold')
 
 ax_map.set_xlim(-10, 160)
 ax_map.set_ylim(-10, 160)
@@ -321,11 +322,11 @@ ax_map.axis('off')
 
 legend_handles = [
     mpatches.Patch(color=PALETTE["depot"],   label="Depósitos (I = Início, F = Fim)"),
-    mpatches.Patch(color=PALETTE["route"],   label=f"Lixeira na rota (≥{THRESHOLD}%)"),
-    mpatches.Patch(color=PALETTE["ignored"], label=f"Ignorada (<{THRESHOLD}%)"),
+    mpatches.Patch(color=PALETTE["route"],   label=f"Lixeira na rota (≥{THRESHOLD/100:g}L)"),
+    mpatches.Patch(color=PALETTE["ignored"], label=f"Ignorada (<{THRESHOLD/100:g}L)"),
 ]
 for t in range(len(trips)):
-    legend_handles.append(mpatches.Patch(color=TRIP_COLORS[t], label=f"Viagem {t+1} (Vol: {trip_vols[t]}%)"))
+    legend_handles.append(mpatches.Patch(color=TRIP_COLORS[t], label=f"Viagem {t+1} (Vol: {trip_vols[t]/100:g}L)"))
 ax_map.legend(handles=legend_handles, loc='lower right', fontsize=8, framealpha=0.9)
 
 # ── GRÁFICO 2: Nível de preenchimento ────────
@@ -335,18 +336,19 @@ ax_bar.set_title("Nível de Preenchimento", fontsize=10, fontweight='bold', colo
 
 ids   = [n for n in G.nodes if not G.nodes[n]["depot"]]
 names = [G.nodes[n]["name"].replace("Enfermaria", "Enf.").replace("Centro ", "Ctr.") for n in ids]
-pcts  = [fill_levels[n] for n in ids]
-colors_bar = [PALETTE["route"] if p >= THRESHOLD else PALETTE["ignored"] for p in pcts]
+# Eixo X das barras mapeado para Litros
+pcts_L  = [fill_levels[n] / 100 for n in ids]
+colors_bar = [PALETTE["route"] if p * 100 >= THRESHOLD else PALETTE["ignored"] for p in pcts_L]
 
-bars = ax_bar.barh(names, pcts, color=colors_bar, edgecolor='white', linewidth=0.6, height=0.65)
-ax_bar.axvline(x=THRESHOLD, color="#185FA5", lw=1.5, linestyle='--', label=f"Limiar ({THRESHOLD}%)")
+bars = ax_bar.barh(names, pcts_L, color=colors_bar, edgecolor='white', linewidth=0.6, height=0.65)
+ax_bar.axvline(x=THRESHOLD/100, color="#185FA5", lw=1.5, linestyle='--', label=f"Limiar ({THRESHOLD/100:g}L)")
 
-for bar, pct in zip(bars, pcts):
-    ax_bar.text(min(pct + 1.5, 97), bar.get_y() + bar.get_height()/2, f"{pct}%", 
+for bar, pct_L in zip(bars, pcts_L):
+    ax_bar.text(min(pct_L + 0.015, 1.05), bar.get_y() + bar.get_height()/2, f"{pct_L:g}L", 
                 va='center', ha='left', fontsize=8, color=PALETTE["text"], fontweight='bold')
 
-ax_bar.set_xlim(0, 110)
-ax_bar.set_xlabel("Preenchimento (%)", fontsize=8, color=PALETTE["text"])
+ax_bar.set_xlim(0, 1.1)
+ax_bar.set_xlabel("Preenchimento (L)", fontsize=8, color=PALETTE["text"])
 ax_bar.legend(fontsize=7.5, framealpha=0.9)
 ax_bar.grid(axis='x', color=PALETTE["grid"], lw=0.5)
 
@@ -355,7 +357,6 @@ ax_trash = fig.add_subplot(gs[1, 2])
 ax_trash.set_facecolor(PALETTE["bg"])
 ax_trash.set_title("Volume de Lixo por Viagem", fontsize=10, fontweight='bold', color=PALETTE["text"])
 
-# Paleta de cores distintas para os bloquinhos (nós) dentro da barra empilhada
 STACK_COLORS = ["#4A8F79", "#F07C41", "#533AB7", "#E24B4A", "#F4C244", "#2B6888", "#8D4D85", "#B85B67", "#39719E"]
 
 if trips:
@@ -363,29 +364,27 @@ if trips:
     
     for t, trip in enumerate(trips):
         trip_label = trip_labels[t]
-        bottom = 0
+        bottom_L = 0
         nodes_in_trip = [n for n in trip if not G.nodes[n]["depot"]]
         
         for i, n in enumerate(nodes_in_trip):
-            val = fill_levels[n]
+            val_L = fill_levels[n] / 100
             c = STACK_COLORS[i % len(STACK_COLORS)]
-            ax_trash.bar(trip_label, val, bottom=bottom, color=c, edgecolor='white', width=0.55)
+            ax_trash.bar(trip_label, val_L, bottom=bottom_L, color=c, edgecolor='white', width=0.55)
             
-            # Escreve o "Nó X" e a "Porcentagem" no meio do bloco se houver espaço
-            if val >= 25:
-                ax_trash.text(trip_label, bottom + val/2, f"Nó {n}\n{val}%", ha='center', va='center', 
+            # Textos dentro dos bloquinhos ajustados para Litros
+            if val_L >= 0.25:
+                ax_trash.text(trip_label, bottom_L + val_L/2, f"Nó {n}\n{val_L:g}L", ha='center', va='center', 
                               fontsize=7, color='white', fontweight='bold')
-            bottom += val
+            bottom_L += val_L
             
-        # Imprime o total acumulado no topo da barra empilhada
-        ax_trash.text(trip_label, bottom + 5, f"{bottom}%", ha='center', va='bottom', 
+        ax_trash.text(trip_label, bottom_L + 0.05, f"{bottom_L:g}L", ha='center', va='bottom', 
                       fontsize=8.5, fontweight='bold', color=PALETTE["text"])
 
-    # Linha tracejada indicando o Limite de Capacidade do Carrinho
-    ax_trash.axhline(y=CAPACITY, color="#E24B4A", lw=1.5, linestyle='--', label=f"Capacidade Máx ({CAPACITY}%)")
+    ax_trash.axhline(y=CAPACITY/100, color="#E24B4A", lw=1.5, linestyle='--', label=f"Capacidade Máx ({CAPACITY/100:g}L)")
     
-    ax_trash.set_ylim(0, CAPACITY * 1.15)
-    ax_trash.set_ylabel("Volume Acumulado (%)", fontsize=8, color=PALETTE["text"])
+    ax_trash.set_ylim(0, (CAPACITY/100) * 1.15)
+    ax_trash.set_ylabel("Volume Acumulado (L)", fontsize=8, color=PALETTE["text"])
     ax_trash.legend(fontsize=7.5, framealpha=0.9, loc='upper right')
     ax_trash.grid(axis='y', color=PALETTE["grid"], lw=0.5)
 
@@ -411,7 +410,7 @@ ax_trip.grid(axis='y', color=PALETTE["grid"], lw=0.5)
 
 # ── Rodapé atualizado ────────────────────────────────────────
 fig.text(0.05, 0.01,
-         "Modelo Final: Dashboard Completo com Análise de Capacidade Empilhada",
+         "Modelo Final: Backend em % | Frontend convertido em Litros (L)",
          fontsize=8, color="#888780", ha='left', va='bottom')
 
 # Exibe o gráfico diretamente na tela
